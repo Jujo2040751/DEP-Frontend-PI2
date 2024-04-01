@@ -1,16 +1,43 @@
-import { useState } from 'react';
-import axios from 'axios';
 
-import './App.css';
+import { AppBar, Box, Button, Container, IconButton, Toolbar, Typography, Grid, CardContent, Card, Dialog, DialogContent,TextField, Alert} from '@mui/material';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import MyIcon from './assets/imageIcon.png'
+import { styled } from '@mui/material/styles';
+import { Bars} from 'react-loader-spinner'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import ReactPlayer from 'react-player'
 
 function App() {
-
+  const [audioFile, setAudioFile] = useState(null);
   const [transcription, setTranscription] = useState('');
+  const [progress, setProgress] = useState(false);
+
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
+
+  const handleFileChange = (event) => {
+    console.log('entro')
+    setTranscription('')
+    const file = event.target.files[0];
+    setAudioFile(file);
+    addFile(audioFile);
+  };
 
   const addFile = async (e) => {
-    if (e.target.files[0]) {
+    if (audioFile) {
+      setProgress(true);
       const formData = new FormData();
-      formData.append('audiofile', e.target.files[0]);
+      formData.append('audiofile', audioFile);
 
       const response = await axios.post('http://127.0.0.1:5000/transcribe', formData, {
         headers: {
@@ -19,26 +46,99 @@ function App() {
       }).then(async ({ data }) => { 
         console.log(data)
         setTranscription(data.transcription)
+        setProgress(false); 
        })
         .catch((err) => console.log({ err }))
     }
-
   };
 
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <input type="file" onChange={addFile} />
+    <Box sx={{ maxWidth: '100%' }}>
 
-      </div>
-      {transcription && (
-        <div className="transcription">
-          <h2>Transcripción:</h2>
-          <p>{transcription}</p>
-        </div>
-      )}
-    </>
+      <header>
+        <AppBar position="static">
+          <Toolbar variant="dense" style={{backgroundColor:'#313053', height:'70px'}}>
+            <IconButton edge="start" color="inherit" aria-label="menu" >
+            <img src={MyIcon} alt="My Icon" style={{ width: '60px', height: '60px' }} />
+            </IconButton>
+            <Typography variant="h6" color="#fff" component="div">
+              DEP
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      </header>
+
+      <Container sx={{ display: 'flex', justifyContent: 'center', minWidth: '100%' }}>  
+        <Grid container justifyContent={'center'} alignContent={'center'}>      
+          <Grid item xs={12} md={12} justifyContent={'center'} alignContent={'center'} textAlign={'center'}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', m: 1 }} >
+              <Typography variant='h3' color="GrayText">
+              Detection of emotions in PQRS
+              </Typography>
+            </Box>
+            <Box sx={{mt: 5}}>
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload audio file
+              <VisuallyHiddenInput type="file" onChange={handleFileChange} />
+            </Button>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={12} >
+            {
+              audioFile ? 
+                <Box sx={{display:'flex', justifyContent: 'center', mt: 4, mb:4}}>
+                  <Card sx={{ minWidth: 275 }}>
+                    <CardContent>
+                      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                        File information
+                      </Typography>
+                      <Typography variant="h5" component="div">
+                        {audioFile.name}
+                      </Typography>
+                      <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                      {(audioFile.size  / (1024 * 1024)).toFixed(2)} MB
+                      </Typography>
+                      <Typography variant="body2">
+                      {audioFile.type}    
+                      </Typography>
+                      {audioFile && <ReactPlayer url={URL.createObjectURL(audioFile)} controls={true}  height={100} />}
+                    </CardContent>
+                  </Card>
+                </Box>         
+              :
+              <></>
+            }
+          {progress && (
+              <Box sx={{textAlign: 'center'}}>
+                <Bars
+                  height="80"
+                  width="80"
+                  color="#4fa94d"
+                  ariaLabel="bars-loading"
+                  wrapperStyle={{justifyContent:'center'}}
+                  wrapperClass=""
+                  visible={true}
+                  />
+                <Typography>Transcribing...</Typography>
+              </Box>
+          )}
+            {
+              transcription && 
+              <Box className="transcription">
+                <Typography variant='h2'>Transcripción:</Typography>
+                <Typography>{transcription}</Typography>
+              </Box>
+            } 
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 }
 
