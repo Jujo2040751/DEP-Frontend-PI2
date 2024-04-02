@@ -6,7 +6,9 @@ import MyIcon from './assets/imageIcon.png'
 import { styled } from '@mui/material/styles';
 import { Bars} from 'react-loader-spinner'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import ReactPlayer from 'react-player'
+import { auto } from '@popperjs/core';
 
 function App() {
   const [audioFile, setAudioFile] = useState(null);
@@ -34,10 +36,16 @@ function App() {
   };
 
   const addFile = async (e) => {
-    if (audioFile) {
-      setProgress(true);
+    if (e.target.files[0]) {
+      setTranscription('')
+      setProgress(true);  
+      console.log('entro el audio')
+      const file = e.target.files[0];
+      setAudioFile(file);
+      
+
       const formData = new FormData();
-      formData.append('audiofile', audioFile);
+      formData.append('audiofile', e.target.files[0]);
 
       const response = await axios.post('http://127.0.0.1:5000/transcribe', formData, {
         headers: {
@@ -85,11 +93,11 @@ function App() {
               startIcon={<CloudUploadIcon />}
             >
               Upload audio file
-              <VisuallyHiddenInput type="file" onChange={handleFileChange} />
+              <VisuallyHiddenInput type="file" onChange={addFile} />
             </Button>
             </Box>
           </Grid>
-          <Grid item xs={12} md={12} >
+          <Grid item xs={12} md={4} >
             {
               audioFile ? 
                 <Box sx={{display:'flex', justifyContent: 'center', mt: 4, mb:4}}>
@@ -107,15 +115,33 @@ function App() {
                       <Typography variant="body2">
                       {audioFile.type}    
                       </Typography>
-                      {audioFile && <ReactPlayer url={URL.createObjectURL(audioFile)} controls={true}  height={100} />}
+                      {audioFile && <ReactPlayer url={URL.createObjectURL(audioFile)} controls={true}  height={100} width={auto} />}
                     </CardContent>
                   </Card>
                 </Box>         
               :
               <></>
             }
+            {
+              transcription && (
+                <Box sx={{display:'flex', justifyContent: 'center', mt: 5}}>
+                <Button
+                  component="label"
+                  role={undefined}
+                  variant="contained"
+                  tabIndex={-1}
+                  startIcon={<ManageSearchIcon />}
+                >
+                  Analize
+                  <VisuallyHiddenInput type="file"  />
+                </Button>
+                </Box>
+              )
+            }
+          </Grid>
+          <Grid item xs={12} md={6} >  
           {progress && (
-              <Box sx={{textAlign: 'center'}}>
+              <Box sx={{textAlign: 'center', marginTop:'31px'}}>
                 <Bars
                   height="80"
                   width="80"
@@ -129,11 +155,21 @@ function App() {
               </Box>
           )}
             {
-              transcription && 
-              <Box className="transcription">
-                <Typography variant='h2'>Transcripción:</Typography>
-                <Typography>{transcription}</Typography>
-              </Box>
+              transcription && (<>
+              <Card sx={{height:'auto', marginLeft:'10px', marginTop:'31px'}}>
+                  <CardContent sx={{height:'auto', backgroundColor: '#d4edda'}}>
+                    <Box className="transcription" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'}}>
+                      <Typography variant='h4'>Transcripción:</Typography>
+                      <Typography>{transcription}</Typography>
+                    </Box>  
+                  </CardContent>
+                </Card>
+                
+              </>
+                
+                
+              )
+              
             } 
           </Grid>
         </Grid>
