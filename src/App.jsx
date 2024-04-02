@@ -13,7 +13,9 @@ import { auto } from '@popperjs/core';
 function App() {
   const [audioFile, setAudioFile] = useState(null);
   const [transcription, setTranscription] = useState('');
+  const [analizeResult, setAnalizeResult] = useState('');
   const [progress, setProgress] = useState(false);
+  const [progressAnalize, setProgressAnalize] = useState(false);
 
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -27,13 +29,7 @@ function App() {
     width: 1,
   });
 
-  const handleFileChange = (event) => {
-    console.log('entro')
-    setTranscription('')
-    const file = event.target.files[0];
-    setAudioFile(file);
-    addFile(audioFile);
-  };
+
 
   const addFile = async (e) => {
     if (e.target.files[0]) {
@@ -59,6 +55,18 @@ function App() {
         .catch((err) => console.log({ err }))
     }
   };
+
+
+  const addAnalizer = async () => {
+    setAnalizeResult('')
+    setProgressAnalize(true);  
+    await axios.get('http://127.0.0.1:5000/analize').then(({data1}) => {
+      console.log(data1.result)
+      setAnalizeResult(data1.result)
+
+      setProgressAnalize(false);
+    } ) 
+  } 
 
   return (
     <Box sx={{ maxWidth: '100%' }}>
@@ -131,9 +139,10 @@ function App() {
                   variant="contained"
                   tabIndex={-1}
                   startIcon={<ManageSearchIcon />}
+                  onClick={addAnalizer} 
                 >
                   Analize
-                  <VisuallyHiddenInput type="file"  />
+                  
                 </Button>
                 </Box>
               )
@@ -171,6 +180,8 @@ function App() {
               )
               
             } 
+
+
           </Grid>
         </Grid>
       </Container>
