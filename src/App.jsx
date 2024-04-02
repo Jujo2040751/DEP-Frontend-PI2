@@ -35,7 +35,6 @@ function App() {
     if (e.target.files[0]) {
       setTranscription('')
       setProgress(true);  
-      console.log('entro el audio')
       const file = e.target.files[0];
       setAudioFile(file);
       
@@ -59,14 +58,16 @@ function App() {
 
   const addAnalizer = async () => {
     setAnalizeResult('')
+    const transc = {transcription}
     setTranscription('')
     setProgressAnalize(true);  
-    await axios.get('http://127.0.0.1:5000/analyze').then(({data1}) => {
-      console.log(data1.result)
-      setAnalizeResult(data1.result)
+    await axios.post('http://127.0.0.1:5000/analyze', transc).then(({data}) => {
+      console.log(data.result)
+      setAnalizeResult(data.result)
+      setProgressAnalize(false)
       
-      setProgressAnalize(false);
     } ) 
+
   } 
 
   return (
