@@ -61,7 +61,7 @@ function App() {
     setAnalizeResult('')
     setTranscription('')
     setProgressAnalize(true);  
-    await axios.get('http://127.0.0.1:5000/analize').then(({data1}) => {
+    await axios.get('http://127.0.0.1:5000/analyze').then(({data1}) => {
       console.log(data1.result)
       setAnalizeResult(data1.result)
       
