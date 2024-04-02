@@ -59,11 +59,12 @@ function App() {
 
   const addAnalizer = async () => {
     setAnalizeResult('')
+    setTranscription('')
     setProgressAnalize(true);  
     await axios.get('http://127.0.0.1:5000/analize').then(({data1}) => {
       console.log(data1.result)
       setAnalizeResult(data1.result)
-
+      
       setProgressAnalize(false);
     } ) 
   } 
@@ -180,7 +181,37 @@ function App() {
               )
               
             } 
-
+            {progressAnalize && (
+              <Box sx={{textAlign: 'center', marginTop:'31px'}}>
+                <Bars
+                  height="80"
+                  width="80"
+                  color="#4fa94d"
+                  ariaLabel="bars-loading"
+                  wrapperStyle={{justifyContent:'center'}}
+                  wrapperClass=""
+                  visible={true}
+                  />
+                <Typography>Analyzing...</Typography>
+              </Box>
+          )}
+            {
+              analizeResult && (<>
+              <Card sx={{height:'auto', marginLeft:'10px', marginTop:'31px'}}>
+                  <CardContent sx={{height:'auto', backgroundColor: '#d4edda'}}>
+                    <Box className="transcription" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'}}>
+                      <Typography variant='h4'>Informe:</Typography>
+                      <Typography>{analizeResult}</Typography>
+                    </Box>  
+                  </CardContent>
+                </Card>
+                
+              </>
+                
+                
+              )
+              
+            } 
 
           </Grid>
         </Grid>
