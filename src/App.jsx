@@ -42,7 +42,7 @@ function App() {
       const formData = new FormData();
       formData.append('audiofile', e.target.files[0]);
 
-      const response = await axios.post('http://127.0.0.1:5000/transcribe', formData, {
+      const response = await axios.post('https://dep-backend-lopt.onrender.com/transcribe', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -61,7 +61,7 @@ function App() {
     const transc = {transcription}
     setTranscription('')
     setProgressAnalize(true);  
-    await axios.post('http://127.0.0.1:5000/analyze', transc).then(({data}) => {
+    await axios.post('https://dep-backend-lopt.onrender.com/analyze', transc).then(({data}) => {
       console.log(data.result)
       setAnalizeResult(data.result)
       setProgressAnalize(false)
